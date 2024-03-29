@@ -36,7 +36,7 @@ class _SegmentedFormState extends State<SegmentedForm> {
             ),
           ),
         ));
-    logBuild(runtimeType);
+    logInfo(runtimeType);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

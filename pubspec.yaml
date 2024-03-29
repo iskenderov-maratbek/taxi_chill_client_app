@@ -23,7 +23,8 @@ dependencies:
   google_fonts: ^6.1.0
   pinput: ^3.0.1
   app_links: ^3.5.0
-
+  graphql_flutter: ^5.2.0-beta.6
+  
   
 dev_dependencies:
   flutter_test:

@@ -18,12 +18,6 @@ class AuthService extends ChangeNotifier {
     return _auth.currentUser != null;
   }
 
-  @override
-  void dispose() {
-    logInfo(' Сервис авторизации dispose');
-    super.dispose();
-  }
-
   Future<bool> login({required String email, required String password}) async {
     logInfo('Авторизация пользователя $email');
     try {

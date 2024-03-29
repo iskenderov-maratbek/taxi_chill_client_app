@@ -9,7 +9,6 @@ import 'package:taxi_chill/models/dialog_forms.dart';
 import 'package:taxi_chill/models/misc_methods.dart';
 import 'package:taxi_chill/models/page_builder.dart';
 import 'package:taxi_chill/services/auth_service.dart';
-import 'package:taxi_chill/services/deep_link_service.dart';
 
 class Restore extends StatefulWidget {
   const Restore({super.key});
@@ -27,7 +26,6 @@ class _RestoreState extends State<Restore> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   late AuthService authService;
-  late DeepLinkService deepLinkService;
   late Map<int, String> tabItems;
   late List<Widget> items;
   int _segmentedIndex = 0;
@@ -37,7 +35,6 @@ class _RestoreState extends State<Restore> {
   @override
   void initState() {
     authService = context.read<AuthService>();
-    deepLinkService = context.read<DeepLinkService>();
     super.initState();
   }
 
@@ -48,8 +45,6 @@ class _RestoreState extends State<Restore> {
   @override
   void dispose() {
     logInfo('Disposing в окне восстановления....');
-    deepLinkService.dispose();
-    authService.dispose();
     _emailController.dispose();
     _phoneNumberController.dispose();
     _passwordController.dispose();
@@ -84,8 +79,6 @@ class _RestoreState extends State<Restore> {
         allValidators = await authService.restore(_emailController.text);
         logInfo('Send code: $allValidators');
         if (mounted) {
-          deepLinkService.deepLinkListener();
-          deepLinkService.addListener(listenDeepLink);
           DialogForms.showInteractiveDialog(
               context: context,
               icon: const Icon(
@@ -96,10 +89,7 @@ class _RestoreState extends State<Restore> {
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 25),
               ),
-              cancelButton: () {
-                deepLinkService.removeListener(listenDeepLink);
-                deepLinkService.cancelListener();
-              });
+              cancelButton: () {});
         }
       } else {
         allValidators = await showPinCodeDialog(context);
@@ -107,24 +97,6 @@ class _RestoreState extends State<Restore> {
       logInfo('Успешно!');
     } else {
       logError('Валидаторы невалидны');
-    }
-  }
-
-  listenDeepLink() {
-    if (deepLinkService.hookedUri == 'restore') {
-      DialogForms.showInformationOverlay(
-          context: context,
-          widget: const Icon(
-            Icons.check_box_outlined,
-            color: Colors.green,
-          ),
-          text: const Text('Вы успешно изменили пароль!'));
-      deepLinkService.removeListener(listenDeepLink);
-      Future.delayed(const Duration(seconds: 2), () {
-        Navigator.pushNamedAndRemoveUntil(context, '/auth', (route) => false);
-      });
-    } else {
-      logError('Недействительная ссылка: ${deepLinkService.hookedUri}');
     }
   }
 
@@ -146,7 +118,7 @@ class _RestoreState extends State<Restore> {
             controller: _phoneNumberController),
       )
     ];
-    logBuild(runtimeType);
+    logInfo(runtimeType);
     return PageBuilder(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

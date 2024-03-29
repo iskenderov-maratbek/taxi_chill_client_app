@@ -23,7 +23,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
 
   @override
   Widget build(BuildContext context) {
-    logBuild(runtimeType);
+    logInfo(runtimeType);
     return TextFormField(
       validator: widget.validator,
       obscureText: obscurePassword,

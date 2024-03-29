@@ -10,6 +10,7 @@ import 'package:taxi_chill/models/page_builder.dart';
 import 'package:taxi_chill/auth/models/segmented_form.dart';
 import 'package:taxi_chill/auth/models/validators.dart';
 import 'package:taxi_chill/services/auth_service.dart';
+import 'package:taxi_chill/services/gql_service.dart';
 
 class Auth extends StatefulWidget {
   const Auth({super.key});
@@ -115,7 +116,7 @@ class _AuthState extends State<Auth> {
             controller: _phoneNumberController),
       )
     ];
-    logBuild(runtimeType);
+    logInfo(runtimeType);
     return PageBuilder(
       child: Form(
         key: _globalKey,
@@ -167,6 +168,7 @@ class _AuthState extends State<Auth> {
                 style: TextStyle(fontSize: 20),
               ),
             ),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -175,6 +177,8 @@ class _AuthState extends State<Auth> {
                 ),
                 TextButton(
                   style: ButtonStyle(
+                    side: MaterialStateProperty.all<BorderSide>(
+                        const BorderSide(color: Color(0xFFFBC02D), width: .5)),
                     overlayColor: MaterialStateProperty.all<Color>(
                         const Color(0xFFFBC02D).withOpacity(0.3)),
                   ),
@@ -192,8 +196,7 @@ class _AuthState extends State<Auth> {
                 ),
               ],
             ),
-            const Divider(),
-            const SizedBox(height: 5),
+            const SizedBox(height: 10),
             Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -222,7 +225,13 @@ class _AuthState extends State<Auth> {
                       fit: BoxFit.contain,
                       filterQuality: FilterQuality.low,
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      gqlrequest('''
+                              query {
+                                    hello
+                                    }
+                                 ''');
+                    },
                   ),
                 ],
               ),

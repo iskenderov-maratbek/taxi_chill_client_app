@@ -112,7 +112,7 @@ class _RegisterState extends State<Register> {
             controller: _phoneNumberController),
       )
     ];
-    logBuild(runtimeType);
+    logInfo(runtimeType);
     return PageBuilder(
       child: Form(
         key: _globalKey,

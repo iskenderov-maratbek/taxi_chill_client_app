@@ -13,7 +13,7 @@ class PageBuilder extends StatefulWidget {
 class _PageBuilderState extends State<PageBuilder> {
   @override
   Widget build(BuildContext context) {
-    logBuild(runtimeType);
+    logInfo(runtimeType);
     return PopScope(
       canPop: widget.canPop,
       child: GestureDetector(

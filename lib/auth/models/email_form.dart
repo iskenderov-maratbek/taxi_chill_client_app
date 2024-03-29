@@ -9,7 +9,7 @@ class EmailForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logBuild(runtimeType);
+    logInfo(runtimeType);
     return TextFormField(
       validator: validator,
       keyboardType: TextInputType.emailAddress,
