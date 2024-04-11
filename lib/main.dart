@@ -12,7 +12,7 @@ import 'package:taxi_chill/home/home.dart';
 import 'package:taxi_chill/models/misc_methods.dart';
 import 'package:taxi_chill/services/auth_service.dart';
 
-final HttpLink httpLink = HttpLink('http://192.168.8.101:3000/graphql');
+final HttpLink httpLink = HttpLink('http://192.168.8.100:3000/graphql');
 final ValueNotifier<GraphQLClient> client = ValueNotifier(
   GraphQLClient(
     link: httpLink,

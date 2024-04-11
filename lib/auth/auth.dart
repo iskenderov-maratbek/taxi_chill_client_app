@@ -212,7 +212,9 @@ class _AuthState extends State<Auth> {
                       fit: BoxFit.contain,
                       filterQuality: FilterQuality.low,
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      gqlMutate(_emailController.text);
+                    },
                   ),
                   const SizedBox(width: 30),
                   IconButton(
@@ -226,11 +228,7 @@ class _AuthState extends State<Auth> {
                       filterQuality: FilterQuality.low,
                     ),
                     onPressed: () {
-                      gqlrequest('''
-                              query {
-                                    hello
-                                    }
-                                 ''');
+                      gqlRequest('auth');
                     },
                   ),
                 ],
