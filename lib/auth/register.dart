@@ -129,6 +129,7 @@ class _RegisterState extends State<Register> {
             ),
             const SizedBox(height: 20),
             SegmentedForm(
+              sizedBox: 5,
               tabItems: tabItems,
               items: items,
               selectedIndex: _selectedIndex,

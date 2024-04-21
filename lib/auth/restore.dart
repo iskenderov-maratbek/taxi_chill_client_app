@@ -133,6 +133,7 @@ class _RestoreState extends State<Restore> {
           ),
           const SizedBox(height: 20),
           SegmentedForm(
+            sizedBox: 5,
             tabItems: tabItems,
             items: items,
             selectedIndex: _selectedIndex,

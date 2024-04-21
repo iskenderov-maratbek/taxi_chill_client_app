@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:taxi_chill/auth/models/email_form.dart';
 import 'package:taxi_chill/auth/models/password_form.dart';
@@ -10,7 +11,6 @@ import 'package:taxi_chill/models/page_builder.dart';
 import 'package:taxi_chill/auth/models/segmented_form.dart';
 import 'package:taxi_chill/auth/models/validators.dart';
 import 'package:taxi_chill/services/auth_service.dart';
-import 'package:taxi_chill/services/gql_service.dart';
 
 class Auth extends StatefulWidget {
   const Auth({super.key});
@@ -83,9 +83,7 @@ class _AuthState extends State<Auth> {
         default:
       }
       if (allValidators &&
-          await authService.login(
-              email: _emailController.text,
-              password: _passwordController.text) &&
+          await authService.login(email: _emailController.text) &&
           mounted) {
         Navigator.pushNamedAndRemoveUntil(
           context,
@@ -133,14 +131,16 @@ class _AuthState extends State<Auth> {
             ),
             const SizedBox(height: 20),
             SegmentedForm(
+              sizedBox: 10,
               tabItems: tabItems,
               items: items,
               selectedIndex: _selectedIndex,
             ),
-            const SizedBox(height: 5),
+            const SizedBox(height: 10),
             PasswordTextField(
                 controller: _passwordController,
                 validator: Validators.password),
+            const SizedBox(height: 5),
             Center(
               child: TextButton(
                 style: ButtonStyle(
@@ -161,6 +161,7 @@ class _AuthState extends State<Auth> {
                 ),
               ),
             ),
+            const SizedBox(height: 5),
             ElevatedButton(
               onPressed: login,
               child: const Text(
@@ -168,9 +169,11 @@ class _AuthState extends State<Auth> {
                 style: TextStyle(fontSize: 20),
               ),
             ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            const SizedBox(height: 20),
+            Wrap(
+              direction: Axis.horizontal,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              alignment: WrapAlignment.center,
               children: [
                 const Text(
                   'Нет аккаунта? ',
@@ -196,7 +199,7 @@ class _AuthState extends State<Auth> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -212,9 +215,7 @@ class _AuthState extends State<Auth> {
                       fit: BoxFit.contain,
                       filterQuality: FilterQuality.low,
                     ),
-                    onPressed: () {
-                      gqlMutate(_emailController.text);
-                    },
+                    onPressed: () {},
                   ),
                   const SizedBox(width: 30),
                   IconButton(
@@ -227,9 +228,7 @@ class _AuthState extends State<Auth> {
                       fit: BoxFit.contain,
                       filterQuality: FilterQuality.low,
                     ),
-                    onPressed: () {
-                      gqlRequest('auth');
-                    },
+                    onPressed: () {},
                   ),
                 ],
               ),

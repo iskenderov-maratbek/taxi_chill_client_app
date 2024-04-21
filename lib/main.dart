@@ -1,30 +1,17 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:taxi_chill/animations/custom_transition.dart';
 import 'package:taxi_chill/auth/auth.dart';
 import 'package:taxi_chill/auth/register.dart';
 import 'package:taxi_chill/auth/restore.dart';
-import 'package:taxi_chill/firebase_options.dart';
 import 'package:taxi_chill/home/home.dart';
 import 'package:taxi_chill/models/misc_methods.dart';
 import 'package:taxi_chill/services/auth_service.dart';
 
-final HttpLink httpLink = HttpLink('http://192.168.8.100:3000/graphql');
-final ValueNotifier<GraphQLClient> client = ValueNotifier(
-  GraphQLClient(
-    link: httpLink,
-    cache: GraphQLCache(),
-  ),
-);
 Future<void> main() async {
   logInfo('Запуск... метод main');
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   runApp(
     MultiProvider(
       providers: [
@@ -57,21 +44,17 @@ class _TaxiChillState extends State<TaxiChill> {
       '/register': const Register(),
       '/restore': const Restore(),
     };
-    return GraphQLProvider(
-      client: client,
-      child: MaterialApp(
-        onGenerateRoute: (settings) {
-          return CustomRoute(
-            builder: (context) => onGenerateRoute[settings.name]!,
-          );
-        },
-        debugShowCheckedModeBanner: false,
-        title: 'Taxi Chill',
-        theme: theme(context),
-        home: context.read<AuthService>().checkAuth()
-            ? const Home()
-            : const Auth(),
-      ),
+    return MaterialApp(
+      onGenerateRoute: (settings) {
+        return CustomRoute(
+          builder: (context) => onGenerateRoute[settings.name]!,
+        );
+      },
+      debugShowCheckedModeBanner: false,
+      title: 'Taxi Chill',
+      theme: theme(context),
+      home:
+          context.read<AuthService>().checkAuth() ? const Home() : const Auth(),
     );
   }
 }

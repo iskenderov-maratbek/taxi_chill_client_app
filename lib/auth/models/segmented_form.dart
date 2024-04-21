@@ -6,11 +6,13 @@ class SegmentedForm extends StatefulWidget {
   const SegmentedForm(
       {super.key,
       required this.tabItems,
+      required this.sizedBox,
       required this.items,
       required this.selectedIndex});
 
   @override
   State<SegmentedForm> createState() => _SegmentedFormState();
+  final double sizedBox;
   final Function selectedIndex;
   final Map<int, String> tabItems;
   final List<Widget> items;
@@ -60,7 +62,7 @@ class _SegmentedFormState extends State<SegmentedForm> {
             widget.selectedIndex(_sliding!);
           },
         ),
-        const SizedBox(height: 5),
+        SizedBox(height: widget.sizedBox),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: widget.items[_sliding!],
