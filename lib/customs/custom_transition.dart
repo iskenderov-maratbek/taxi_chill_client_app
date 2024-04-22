@@ -10,7 +10,7 @@ class CustomTransition extends PageTransitionsBuilder {
     Widget child,
   ) {
     const Offset slideToRight = Offset(1, 0);
-    const Curve slideCurve = Curves.easeInOutQuint;
+    const Curve slideCurve = Curves.easeOutQuint;
     var forwardTransition = Tween<Offset>(
       begin: slideToRight,
       end: Offset.zero,
@@ -26,7 +26,7 @@ class CustomTransition extends PageTransitionsBuilder {
     ).animate(
       CurvedAnimation(
         parent: animation,
-        curve: Curves.easeInOutExpo,
+        curve: Curves.easeInQuint,
       ),
     );
     return SlideTransition(
@@ -44,7 +44,7 @@ class CustomRoute extends MaterialPageRoute {
   CustomRoute({
     required WidgetBuilder builder,
     bool maintainState = false,
-    this.duration = const Duration(milliseconds: 700),
+    this.duration = const Duration(milliseconds: 500),
   }) : super(builder: builder, maintainState: maintainState);
 
   @override

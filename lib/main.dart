@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
-import 'package:taxi_chill/animations/custom_transition.dart';
+import 'package:taxi_chill/customs/custom_transition.dart';
 import 'package:taxi_chill/auth/auth.dart';
 import 'package:taxi_chill/auth/register.dart';
-import 'package:taxi_chill/auth/restore.dart';
 import 'package:taxi_chill/home/home.dart';
 import 'package:taxi_chill/models/misc_methods.dart';
 import 'package:taxi_chill/services/auth_service.dart';
 
 Future<void> main() async {
-  logInfo('Запуск... метод main');
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.time}: ${record.message}');
+  });
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
@@ -22,27 +25,17 @@ Future<void> main() async {
   );
 }
 
-class TaxiChill extends StatefulWidget {
+class TaxiChill extends StatelessWidget {
   const TaxiChill({super.key});
-
-  @override
-  State<TaxiChill> createState() => _TaxiChillState();
-}
-
-class _TaxiChillState extends State<TaxiChill> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     logInfo('Постройка главного виджета TaxiChill');
+
     Map<String, Widget> onGenerateRoute = {
       '/home': const Home(),
       '/auth': const Auth(),
       '/register': const Register(),
-      '/restore': const Restore(),
     };
     return MaterialApp(
       onGenerateRoute: (settings) {
@@ -65,6 +58,8 @@ ThemeData theme(BuildContext context) {
       builders: {
         TargetPlatform.android: CustomTransition(),
         TargetPlatform.iOS: CustomTransition(),
+        TargetPlatform.macOS: CustomTransition(),
+        TargetPlatform.windows: CustomTransition(),
       },
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
@@ -86,33 +81,34 @@ ThemeData theme(BuildContext context) {
     ),
     scaffoldBackgroundColor: Colors.black,
     inputDecorationTheme: InputDecorationTheme(
-      hintStyle:
-          const TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-      floatingLabelStyle: TextStyle(
+      prefixStyle: const TextStyle(
+        color: Colors.white,
         fontSize: 20,
-        color: Colors.yellow[700],
       ),
+      // constraints: const BoxConstraints.expand(width: 100),
+      contentPadding: const EdgeInsets.all(20),
+      hintStyle: const TextStyle(color: Colors.grey),
       suffixIconColor: Colors.white,
       filled: true,
       fillColor: Colors.grey[900],
-      labelStyle: const TextStyle(
-        fontSize: 20,
-        color: Colors.white,
-      ),
-      border: OutlineInputBorder(
-        borderSide: BorderSide.none,
+      enabledBorder: UnderlineInputBorder(
+        borderSide: const BorderSide(color: Colors.transparent),
         borderRadius: BorderRadius.circular(10),
       ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Color(0xFFFBC02D)),
+      border: UnderlineInputBorder(
+        borderSide: const BorderSide(color: Colors.transparent),
         borderRadius: BorderRadius.circular(10),
       ),
-      errorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Color(0xFFFBC02D)),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.yellow[700]!, width: 3),
         borderRadius: BorderRadius.circular(10),
       ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Color(0xFFFBC02D)),
+      errorBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.red[700]!, width: 3),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      focusedErrorBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: Colors.red[700]!, width: 3),
         borderRadius: BorderRadius.circular(10),
       ),
     ),

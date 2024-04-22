@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:taxi_chill/models/misc_methods.dart';
 
 class SegmentedForm extends StatefulWidget {
@@ -20,13 +21,16 @@ class SegmentedForm extends StatefulWidget {
 
 class _SegmentedFormState extends State<SegmentedForm> {
   int? _sliding = 0;
-  late Map<int, Padding> newTabItems;
+  late Map<int, Widget> newTabItems;
 
   @override
   Widget build(BuildContext context) {
-    newTabItems = widget.tabItems.map((key, value) => MapEntry(
-          key,
-          Padding(
+    newTabItems = widget.tabItems.map(
+      (key, value) => MapEntry<int, Widget>(
+        key,
+        SizedBox(
+          width: double.maxFinite,
+          child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 15),
             child: Text(
               value,
@@ -37,8 +41,10 @@ class _SegmentedFormState extends State<SegmentedForm> {
               ),
             ),
           ),
-        ));
-    logInfo(runtimeType);
+        ),
+      ),
+    );
+    logInfo('ВЫБОРОЧНЫЙ: $runtimeType');
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

@@ -9,23 +9,19 @@ class Validators {
 
   static String? email(String? value) {
     logInfo('Вызов валидатора email: $value');
-    return null;
-  }
-
-  static String? password(String? value) {
-    logInfo('Вызов валидатора password: $value');
-    if (value != null && value.isNotEmpty) {
-      for (var check in passwordRules.values) {
+    if (value != null) {
+      var i = 0;
+      for (var check in emailRules.values) {
+        print(i);
         if (!check(value)) {
-          logError('Неправильный номер или пароль');
-          return '';
+          logError('Невалидный почтовый адрес');
+          return 'Некорректный почтовый адрес';
         }
       }
-      logInfo('Пароль правильный');
+      logInfo('Валидный почтовый адрес');
       return null;
     } else {
-      logError('Неправильный номер или пароль ');
-      return '';
+      return 'Укажите электронный адрес';
     }
   }
 

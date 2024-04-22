@@ -23,7 +23,7 @@ class AuthService extends ChangeNotifier {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
-          'email': 'Hello World',
+          'email': email,
         }),
       );
       logInfo(response);
@@ -42,7 +42,7 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<bool> register(
-      {required String email, required String password}) async {
+      {required String email, required String username}) async {
     logInfo('Регистрация нового пользователя $email');
     try {
       logInfo('Ошибка регистрации пользователя $email');

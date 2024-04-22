@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:taxi_chill/auth/models/email_form.dart';
-import 'package:taxi_chill/auth/models/password_form.dart';
-import 'package:taxi_chill/auth/models/phone_number_form.dart';
+import 'package:taxi_chill/auth/models/text_field_auth.dart';
 import 'package:taxi_chill/auth/pin_code_dialog.dart';
 import 'package:taxi_chill/models/dialog_forms.dart';
 import 'package:taxi_chill/models/misc_methods.dart';
@@ -20,15 +18,12 @@ class Auth extends StatefulWidget {
 }
 
 class _AuthState extends State<Auth> {
-  final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _phoneNumberKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _emailKey = GlobalKey<FormState>();
   final TextEditingController _emailController =
-      TextEditingController(text: 'marat4@mail.ru');
-  final TextEditingController _passwordController =
-      TextEditingController(text: 'inane745');
+      TextEditingController(text: '');
   final TextEditingController _phoneNumberController =
-      TextEditingController(text: '0553998299');
+      TextEditingController(text: '');
   late AuthService authService;
   late Map<int, String> tabItems;
   late List<Widget> items;
@@ -37,6 +32,38 @@ class _AuthState extends State<Auth> {
   @override
   void initState() {
     authService = Provider.of<AuthService>(context, listen: false);
+    tabItems = {
+      0: 'Почта',
+      1: 'Номер телефона',
+    };
+    items = [
+      Form(
+        key: _emailKey,
+        child: TextFieldAuth(
+          maxLength: 320,
+          prefixIcon: Icons.email_rounded,
+          hintText: 'example@example.com',
+          keyboardType: TextInputType.emailAddress,
+          validator: Validators.email,
+          controller: _emailController,
+        ),
+      ),
+      Form(
+        key: _phoneNumberKey,
+        child: TextFieldAuth(
+          maxLength: 9,
+          prefixImg: 'assets/images/icons/kg_flag.png',
+          prefixText: '+996',
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+            FilteringTextInputFormatter.digitsOnly,
+          ],
+          validator: Validators.phoneNumber,
+          controller: _phoneNumberController,
+        ),
+      )
+    ];
     super.initState();
   }
 
@@ -45,196 +72,166 @@ class _AuthState extends State<Auth> {
     logInfo('Disposing Auth State');
     _emailController.dispose();
     _phoneNumberController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
   _selectedIndex(int? index) {
     _segmentedIndex = index!;
-    logInfo('Selected index: $_segmentedIndex');
   }
 
   login() async {
-    bool allValidators = false;
     DialogForms.showLoaderOverlay(
       context: context,
       run: () async {
-        //Segmented selected Form check
         switch (_segmentedIndex) {
           case 0:
             logInfo('_segmentedIndex: $_segmentedIndex');
-            allValidators = _emailKey.currentState!.validate();
+            if (_emailKey.currentState!.validate() && mounted) {
+              await authService.login(email: _emailController.text) && mounted
+                  ? Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/home',
+                      (Route<dynamic> route) => false,
+                    )
+                  : logError('Неправильный адрес');
+            } else {
+              logError('Некорректный адрес');
+            }
           case 1:
-            logInfo('_segmentedIndex: $_segmentedIndex');
-            allValidators = _phoneNumberKey.currentState!.validate();
+            await showPinCodeDialog(context);
           default:
-            logError('_segmentedIndex: $_segmentedIndex');
-            allValidators = false;
         }
-        // Other forms check
       },
     );
-    if (allValidators && _globalKey.currentState!.validate()) {
-      switch (_segmentedIndex) {
-        case 0:
-          break;
-        case 1:
-          allValidators = await showPinCodeDialog(context);
-        default:
-      }
-      if (allValidators &&
-          await authService.login(email: _emailController.text) &&
-          mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/home',
-          (Route<dynamic> route) => false,
-        );
-      }
-      logInfo('Успешно!');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    tabItems = {
-      0: 'Почта',
-      1: 'Номер телефона',
-    };
-    items = [
-      Form(
-        key: _emailKey,
-        child: EmailForm(
-            validator: Validators.email, controller: _emailController),
-      ),
-      Form(
-        key: _phoneNumberKey,
-        child: PhoneNumberForm(
-            validator: Validators.phoneNumber,
-            controller: _phoneNumberController),
-      )
-    ];
     logInfo(runtimeType);
     return PageBuilder(
-      child: Form(
-        key: _globalKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Вход',
-              textAlign: TextAlign.center,
+      canPop: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Вход',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 30,
+            ),
+          ),
+          const SizedBox(height: 20),
+          SegmentedForm(
+            sizedBox: 5,
+            tabItems: tabItems,
+            items: items,
+            selectedIndex: _selectedIndex,
+          ),
+          const SizedBox(height: 15),
+          ElevatedButton(
+            style: ButtonStyle(
+              padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
+            ),
+            onPressed: login,
+            child: const Text(
+              'Войти',
               style: TextStyle(
-                fontSize: 40,
+                fontSize: 20,
               ),
             ),
-            const SizedBox(height: 20),
-            SegmentedForm(
-              sizedBox: 10,
-              tabItems: tabItems,
-              items: items,
-              selectedIndex: _selectedIndex,
-            ),
-            const SizedBox(height: 10),
-            PasswordTextField(
-                controller: _passwordController,
-                validator: Validators.password),
-            const SizedBox(height: 5),
-            Center(
-              child: TextButton(
+          ),
+          const SizedBox(height: 20),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () {},
                 style: ButtonStyle(
-                  overlayColor: MaterialStateProperty.all<Color>(
-                      Colors.blue.withOpacity(0.3)),
+                  side: MaterialStateProperty.all<BorderSide>(
+                      const BorderSide(color: Colors.white)),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.black),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(50, 50)),
                 ),
-                onPressed: () {
-                  DialogForms.showLoaderOverlay(
-                    context: context,
-                    run: () {
-                      Navigator.pushNamed(context, '/restore');
-                    },
-                  );
-                },
-                child: const Text(
-                  'Забыли пароль?',
-                  style: TextStyle(fontSize: 16, color: Colors.blue),
-                ),
-              ),
-            ),
-            const SizedBox(height: 5),
-            ElevatedButton(
-              onPressed: login,
-              child: const Text(
-                'Войти',
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Wrap(
-              direction: Axis.horizontal,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              alignment: WrapAlignment.center,
-              children: [
-                const Text(
-                  'Нет аккаунта? ',
-                ),
-                TextButton(
-                  style: ButtonStyle(
-                    side: MaterialStateProperty.all<BorderSide>(
-                        const BorderSide(color: Color(0xFFFBC02D), width: .5)),
-                    overlayColor: MaterialStateProperty.all<Color>(
-                        const Color(0xFFFBC02D).withOpacity(0.3)),
-                  ),
-                  onPressed: () {
-                    DialogForms.showLoaderOverlay(
-                        context: context,
-                        run: () {
-                          Navigator.pushNamed(context, '/register');
-                        });
-                  },
-                  child: Text(
-                    'Создать аккаунт',
-                    style: TextStyle(fontSize: 16, color: Colors.yellow[700]),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 40),
-                    tooltip: 'Войти через Apple',
-                    icon: Image.asset(
-                      'assets/images/apple_auth.png',
-                      width: 35,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/icons/apple_auth.png',
+                      width: 30,
                       fit: BoxFit.contain,
                       filterQuality: FilterQuality.low,
                     ),
-                    onPressed: () {},
-                  ),
-                  const SizedBox(width: 30),
-                  IconButton(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 40),
-                    tooltip: 'Войти через Google',
-                    icon: Image.asset(
-                      'assets/images/google_auth.png',
-                      width: 35,
+                    const SizedBox(width: 30),
+                    const Expanded(
+                      child: Text(
+                        'Войти c помощью Apple',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {},
+                style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.white),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(50, 50)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/icons/google_auth.png',
+                      width: 30,
                       fit: BoxFit.contain,
                       filterQuality: FilterQuality.low,
                     ),
-                    onPressed: () {},
-                  ),
-                ],
+                    const SizedBox(width: 30),
+                    const Expanded(
+                        child: Text(
+                      'Войти c помощью Google',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16),
+                    )),
+                  ],
+                ),
               ),
+            ],
+          ),
+          const SizedBox(height: 15),
+          const Divider(
+            indent: 15,
+            endIndent: 15,
+            color: Colors.white54,
+          ),
+          TextButton(
+            style: ButtonStyle(
+              overlayColor: MaterialStateProperty.all<Color>(
+                  Colors.yellow[700]!.withOpacity(0.3)),
             ),
-          ],
-        ),
+            onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              Navigator.pushNamed(
+                context,
+                '/register',
+              );
+            },
+            child: Text(
+              'Регистация',
+              style: TextStyle(fontSize: 20, color: Colors.yellow[700]),
+            ),
+          ),
+        ],
       ),
     );
   }

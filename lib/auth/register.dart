@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:taxi_chill/auth/models/email_form.dart';
-import 'package:taxi_chill/auth/models/password_form.dart';
-import 'package:taxi_chill/auth/models/phone_number_form.dart';
-import 'package:taxi_chill/auth/models/rules.dart';
 import 'package:taxi_chill/auth/models/segmented_form.dart';
+import 'package:taxi_chill/auth/models/text_field_auth.dart';
 import 'package:taxi_chill/auth/models/username_form.dart';
 import 'package:taxi_chill/auth/models/validators.dart';
 import 'package:taxi_chill/auth/pin_code_dialog.dart';
@@ -21,12 +19,10 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _phoneNumberKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _emailKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   late AuthService authService;
   late Map<int, String> tabItems;
@@ -35,6 +31,38 @@ class _RegisterState extends State<Register> {
   @override
   void initState() {
     authService = Provider.of<AuthService>(context, listen: false);
+    tabItems = {
+      0: 'Почта',
+      1: 'Номер телефона',
+    };
+    items = [
+      Form(
+        key: _emailKey,
+        child: TextFieldAuth(
+          maxLength: 320,
+          prefixIcon: Icons.email_rounded,
+          hintText: 'example@example.com',
+          keyboardType: TextInputType.emailAddress,
+          validator: Validators.email,
+          controller: _emailController,
+        ),
+      ),
+      Form(
+        key: _phoneNumberKey,
+        child: TextFieldAuth(
+          maxLength: 9,
+          prefixImg: 'assets/images/icons/kg_flag.png',
+          prefixText: '+996',
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+            FilteringTextInputFormatter.digitsOnly,
+          ],
+          validator: Validators.phoneNumber,
+          controller: _phoneNumberController,
+        ),
+      )
+    ];
     super.initState();
   }
 
@@ -44,10 +72,9 @@ class _RegisterState extends State<Register> {
 
   @override
   void dispose() {
-    logInfo('Disposing Auth State');
+    logInfo('Disposing Register State');
     _emailController.dispose();
     _phoneNumberController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -71,7 +98,7 @@ class _RegisterState extends State<Register> {
         // Other forms check
       },
     );
-    if (allValidators && _globalKey.currentState!.validate()) {
+    if (allValidators) {
       switch (_segmentedIndex) {
         case 0:
           break;
@@ -82,7 +109,7 @@ class _RegisterState extends State<Register> {
       if (allValidators &&
           await authService.register(
               email: _emailController.text,
-              password: _passwordController.text) &&
+              username: _usernameController.text) &&
           mounted) {
         Navigator.pushNamedAndRemoveUntil(
           context,
@@ -96,126 +123,67 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
-    tabItems = {
-      0: 'Почта',
-      1: 'Номер телефона',
-    };
-    items = [
-      Form(
-          key: _emailKey,
-          child: EmailForm(
-              validator: Validators.email, controller: _emailController)),
-      Form(
-        key: _phoneNumberKey,
-        child: PhoneNumberForm(
-            validator: Validators.phoneNumber,
-            controller: _phoneNumberController),
-      )
-    ];
     logInfo(runtimeType);
     return PageBuilder(
-      child: Form(
-        key: _globalKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Регистрация',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Регистрация',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 30,
+            ),
+          ),
+          const SizedBox(height: 20),
+          SegmentedForm(
+            sizedBox: 5,
+            tabItems: tabItems,
+            items: items,
+            selectedIndex: _selectedIndex,
+          ),
+          const SizedBox(height: 15),
+          UsernameForm(
+              validator: Validators.username, controller: _usernameController),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: register,
+            child: const Text(
+              'Завершить регистрацию',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 40,
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              const Text(
+                'Уже есть аккаунт? ',
+                style: TextStyle(fontSize: 18),
               ),
-            ),
-            const SizedBox(height: 20),
-            SegmentedForm(
-              sizedBox: 5,
-              tabItems: tabItems,
-              items: items,
-              selectedIndex: _selectedIndex,
-            ),
-            const SizedBox(height: 20),
-            PasswordTextField(
-                controller: _passwordController,
-                validator: Validators.password,
-                hintText: 'Новый пароль'),
-            const SizedBox(height: 10),
-            ...passwordRules
-                .map(
-                  (key, value) => MapEntry(
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.check_circle_outlined,
-                              color: value(
-                                _passwordController.text,
-                              )
-                                  ? Colors.green
-                                  : Colors.white,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                key,
-                                maxLines: 2,
-                                style: TextStyle(
-                                    color: value(
-                                  _passwordController.text,
-                                )
-                                        ? Colors.green
-                                        : Colors.white),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-                    ),
-                    false,
-                  ),
-                )
-                .keys
-                .toList(),
-            UsernameForm(
-                validator: Validators.username,
-                controller: _usernameController),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: register,
-              child: const Text(
-                'Завершить регистрацию',
-                style: TextStyle(fontSize: 20),
+              TextButton(
+                style: ButtonStyle(
+                  overlayColor: MaterialStateProperty.all<Color>(
+                      Colors.yellow[700]!.withOpacity(0.3)),
+                ),
+                onPressed: () {
+                  DialogForms.showLoaderOverlay(
+                      context: context,
+                      run: () {
+                        Navigator.pop(context, '/auth');
+                      });
+                },
+                child: Text(
+                  'Войти',
+                  style: TextStyle(fontSize: 20, color: Colors.yellow[700]),
+                ),
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Уже есть аккаунт? ',
-                ),
-                TextButton(
-                  style: ButtonStyle(
-                    overlayColor: MaterialStateProperty.all<Color>(
-                        const Color(0xFFFBC02D).withOpacity(0.3)),
-                  ),
-                  onPressed: () {
-                    DialogForms.showLoaderOverlay(
-                        context: context,
-                        run: () {
-                          Navigator.pop(context, '/auth');
-                        });
-                  },
-                  child: Text(
-                    'Войти',
-                    style: TextStyle(fontSize: 16, color: Colors.yellow[700]),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }

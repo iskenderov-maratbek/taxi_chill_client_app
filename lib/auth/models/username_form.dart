@@ -12,8 +12,10 @@ class UsernameForm extends StatelessWidget {
       validator: validator,
       controller: controller,
       maxLength: 10,
+      textAlignVertical: TextAlignVertical.center,
       style: const TextStyle(
-        fontSize: 20,
+        fontSize: 18,
+        height: 1.35,
       ),
       decoration: const InputDecoration(
         isDense: true,
