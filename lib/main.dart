@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
-import 'package:taxi_chill/customs/custom_transition.dart';
-import 'package:taxi_chill/auth/auth.dart';
-import 'package:taxi_chill/auth/register.dart';
-import 'package:taxi_chill/home/home.dart';
-import 'package:taxi_chill/models/misc_methods.dart';
+import 'package:taxi_chill/views/misc/custom_transition.dart';
+import 'package:taxi_chill/views/auth/auth_view.dart';
+import 'package:taxi_chill/views/auth/register_view.dart';
+import 'package:taxi_chill/views/home/home.dart';
+import 'package:taxi_chill/views/misc/misc_methods.dart';
 import 'package:taxi_chill/services/auth_service.dart';
 
 Future<void> main() async {
-  Logger.root.level = Level.ALL;
-  Logger.root.onRecord.listen((record) {
-    print('${record.level.name}: ${record.time}: ${record.message}');
-  });
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
@@ -30,7 +24,7 @@ class TaxiChill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    logInfo('Постройка главного виджета TaxiChill');
+    logBuild('Запуск приложения TaxiChill');
 
     Map<String, Widget> onGenerateRoute = {
       '/home': const Home(),
@@ -54,6 +48,7 @@ class TaxiChill extends StatelessWidget {
 
 ThemeData theme(BuildContext context) {
   return ThemeData(
+    fontFamily: 'MiSans',
     pageTransitionsTheme: PageTransitionsTheme(
       builders: {
         TargetPlatform.android: CustomTransition(),
@@ -85,8 +80,6 @@ ThemeData theme(BuildContext context) {
         color: Colors.white,
         fontSize: 20,
       ),
-      // constraints: const BoxConstraints.expand(width: 100),
-      contentPadding: const EdgeInsets.all(20),
       hintStyle: const TextStyle(color: Colors.grey),
       suffixIconColor: Colors.white,
       filled: true,
@@ -146,8 +139,37 @@ ThemeData theme(BuildContext context) {
       backgroundColor: Colors.black,
       surfaceTintColor: Colors.transparent,
     ),
-    textTheme: GoogleFonts.nunitoTextTheme(
-      Theme.of(context).textTheme.apply(bodyColor: Colors.white),
+    textTheme: const TextTheme(
+      titleLarge: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
+      bodyLarge: TextStyle(
+        color: Colors.white,
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+      ),
+      bodyMedium: TextStyle(
+        color: Colors.white,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+      ),
+      labelLarge: TextStyle(
+        color: Colors.white,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+      ),
+      bodySmall: TextStyle(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+      ),
+      labelSmall: TextStyle(
+        color: Colors.white,
+        fontSize: 10,
+        fontWeight: FontWeight.w400,
+      ),
     ),
   );
 }

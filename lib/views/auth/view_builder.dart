@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:taxi_chill/models/misc_methods.dart';
+import 'package:taxi_chill/views/misc/misc_methods.dart';
 
 class PageBuilder extends StatefulWidget {
   const PageBuilder({super.key, required this.child, this.canPop = true});
@@ -13,7 +13,7 @@ class PageBuilder extends StatefulWidget {
 class _PageBuilderState extends State<PageBuilder> {
   @override
   Widget build(BuildContext context) {
-    logInfo(runtimeType);
+    logBuild('Постройка страницы по шаблону');
     return PopScope(
       canPop: widget.canPop,
       child: GestureDetector(

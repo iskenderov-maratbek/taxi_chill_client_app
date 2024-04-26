@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:taxi_chill/models/loader.dart';
-import 'package:taxi_chill/models/misc_methods.dart';
+import 'package:taxi_chill/views/misc/loader.dart';
+import 'package:taxi_chill/views/misc/misc_methods.dart';
 
 class DialogForms {
   DialogForms._();

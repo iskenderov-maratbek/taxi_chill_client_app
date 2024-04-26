@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:taxi_chill/models/misc_methods.dart';
+import 'package:taxi_chill/views/misc/misc_methods.dart';
 
 class SegmentedForm extends StatefulWidget {
   const SegmentedForm(
@@ -24,7 +23,19 @@ class _SegmentedFormState extends State<SegmentedForm> {
   late Map<int, Widget> newTabItems;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    newTabItems.clear();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    logBuild('Меню выбора почты и телефона');
     newTabItems = widget.tabItems.map(
       (key, value) => MapEntry<int, Widget>(
         key,
@@ -44,11 +55,11 @@ class _SegmentedFormState extends State<SegmentedForm> {
         ),
       ),
     );
-    logInfo('ВЫБОРОЧНЫЙ: $runtimeType');
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
         CupertinoSlidingSegmentedControl(
+          // backgroundColor: Colors.black,
+          // thumbColor: Colors.yellow[700]!,
           backgroundColor: Theme.of(context)
               .segmentedButtonTheme
               .style!

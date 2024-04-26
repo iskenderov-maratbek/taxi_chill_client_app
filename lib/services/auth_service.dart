@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:taxi_chill/models/misc_methods.dart';
+import 'package:taxi_chill/views/misc/misc_methods.dart';
 
 class AuthService extends ChangeNotifier {
   AuthService() {
@@ -10,7 +10,7 @@ class AuthService extends ChangeNotifier {
   }
 
   checkAuth() {
-    logInfo('Проверяем авторизацию checkAuth()');
+    logInfo('Проверка токена авторизации');
     return false;
   }
 
@@ -18,7 +18,7 @@ class AuthService extends ChangeNotifier {
     logInfo('Авторизация пользователя $email');
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.8.100:3000/login'),
+        getRoute('/login'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pinput/pinput.dart';
+import 'package:taxi_chill/views/misc/misc_methods.dart';
 
 class PinCodeForm extends StatelessWidget {
   PinCodeForm({super.key, required this.validator, required this.controller});
@@ -46,6 +47,7 @@ class PinCodeForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    logBuild('Форма пин-кода');
     return Pinput(
       validator: validator,
       autofocus: true,

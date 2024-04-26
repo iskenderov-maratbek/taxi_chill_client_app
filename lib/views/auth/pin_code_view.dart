@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:taxi_chill/auth/models/pin_code_form.dart';
+import 'package:taxi_chill/views/forms/pin_code_form.dart';
 
 Future<bool> showPinCodeDialog(context) async {
   return await showDialog(

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:taxi_chill/auth/models/segmented_form.dart';
-import 'package:taxi_chill/auth/models/text_field_auth.dart';
-import 'package:taxi_chill/auth/models/username_form.dart';
-import 'package:taxi_chill/auth/models/validators.dart';
-import 'package:taxi_chill/auth/pin_code_dialog.dart';
-import 'package:taxi_chill/models/dialog_forms.dart';
-import 'package:taxi_chill/models/misc_methods.dart';
-import 'package:taxi_chill/models/page_builder.dart';
+import 'package:taxi_chill/views/forms/segmented_form.dart';
+import 'package:taxi_chill/services/validator_service.dart';
+import 'package:taxi_chill/views/forms/text_field_form.dart';
+import 'package:taxi_chill/views/auth/pin_code_view.dart';
+import 'package:taxi_chill/views/misc/dialog_forms.dart';
+import 'package:taxi_chill/views/misc/misc_methods.dart';
+import 'package:taxi_chill/views/auth/view_builder.dart';
 import 'package:taxi_chill/services/auth_service.dart';
 
 class Register extends StatefulWidget {
@@ -38,7 +37,7 @@ class _RegisterState extends State<Register> {
     items = [
       Form(
         key: _emailKey,
-        child: TextFieldAuth(
+        child: TextFieldForm(
           maxLength: 320,
           prefixIcon: Icons.email_rounded,
           hintText: 'example@example.com',
@@ -49,10 +48,10 @@ class _RegisterState extends State<Register> {
       ),
       Form(
         key: _phoneNumberKey,
-        child: TextFieldAuth(
-          maxLength: 9,
-          prefixImg: 'assets/images/icons/kg_flag.png',
-          prefixText: '+996',
+        child: TextFieldForm(
+          maxLength: 10,
+          prefixIcon: Icons.dialpad_rounded,
+          hintText: '0553998299',
           keyboardType: TextInputType.number,
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
@@ -72,58 +71,40 @@ class _RegisterState extends State<Register> {
 
   @override
   void dispose() {
-    logInfo('Disposing Register State');
+    logDispose('Register');
     _emailController.dispose();
     _phoneNumberController.dispose();
     super.dispose();
   }
 
   register() async {
-    bool allValidators = false;
-    DialogForms.showLoaderOverlay(
-      context: context,
-      run: () async {
-        //Segmented selected Form check
-        switch (_segmentedIndex) {
-          case 0:
-            logInfo('_segmentedIndex: $_segmentedIndex');
-            allValidators = _emailKey.currentState!.validate();
-          case 1:
-            logInfo('_segmentedIndex: $_segmentedIndex');
-            allValidators = _phoneNumberKey.currentState!.validate();
-          default:
-            logError('_segmentedIndex: $_segmentedIndex');
-            allValidators = false;
-        }
-        // Other forms check
-      },
-    );
-    if (allValidators) {
-      switch (_segmentedIndex) {
-        case 0:
-          break;
-        case 1:
-          allValidators = await showPinCodeDialog(context);
-        default:
-      }
-      if (allValidators &&
-          await authService.register(
-              email: _emailController.text,
-              username: _usernameController.text) &&
-          mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/home',
-          (Route<dynamic> route) => false,
-        );
-      }
-      logInfo('Успешно!');
+    switch (_segmentedIndex) {
+      case 0:
+        logInfo('Selected index SEGMENTED_MENU: $_segmentedIndex');
+        DialogForms.showLoaderOverlay(
+            context: context,
+            run: () async {
+              if (_emailKey.currentState!.validate() && mounted) {
+                await authService.login(email: _emailController.text) && mounted
+                    ? Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/home',
+                        (Route<dynamic> route) => false,
+                      )
+                    : logError('Неправильный адрес');
+              } else {
+                logError('Некорректный адрес');
+              }
+            });
+      case 1:
+        await showPinCodeDialog(context);
+      default:
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    logInfo(runtimeType);
+    logBuild('Regsiter');
     return PageBuilder(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -143,9 +124,15 @@ class _RegisterState extends State<Register> {
             items: items,
             selectedIndex: _selectedIndex,
           ),
-          const SizedBox(height: 15),
-          UsernameForm(
-              validator: Validators.username, controller: _usernameController),
+          const SizedBox(height: 10),
+          TextFieldForm(
+            validator: Validators.username,
+            controller: _usernameController,
+            prefixIcon: Icons.person_rounded,
+            maxLength: 32,
+            hintText: 'Как к вам обращаться?',
+            keyboardType: TextInputType.name,
+          ),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: register,
