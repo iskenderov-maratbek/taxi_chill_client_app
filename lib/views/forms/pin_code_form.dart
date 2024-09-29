@@ -13,7 +13,8 @@ class PinCodeForm extends StatelessWidget {
 
   final defaultPinTheme = PinTheme(
     width: 70,
-    height: 80,
+    height: 80, 
+    
     textStyle: const TextStyle(
       fontSize: 30,
       color: Colors.white,
